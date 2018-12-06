@@ -1,7 +1,11 @@
 # Grid Search
 
 >Find MGRS grids associated with search terms and reporting
-
+> - Upload the text you want to search
+> - Enter keywords to find and associate with nearest grids
+> - Choose grid precision
+> - Choose the character size of the snippet to contain grid and search term.
+> - Search text
 
 ## Tech & Dependencies
 
@@ -25,6 +29,8 @@
  ```
  npm run test
  ```   
+
+## Grid Search
 
 <p align="center">
   <img src="gridSearch.png">
