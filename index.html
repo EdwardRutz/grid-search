@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Grid Search</title>
+    <meta charset="utf-8">
+    <script src="./js/vendor.js"></script>
+    <link rel="stylesheet" href="./css/vendor.css">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+
+    <!--<link rel="stylesheet" href="css/productionReady.css">-->
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link title="no title" href="css/style.css" rel="stylesheet" media="screen"/>
+
+</head>
+
+<body>
+<noscript>
+    <i>Enable JavaScript in browser. <br>This application requires JavaScript to run.</i>
+</noscript>
+
+<header>
+
+    <p class="titleText">Grid Search</p>
+
+    <span class="subHead">Find Grids Associated with Search Terms and Reporting</span>
+</header>
+<br>
+
+<!-- INSTRUCTIONS -->
+<p>
+    <input id="Button1" class="btn btn-outline-secondary btn-sm" type="button" value="Click for Instructions"
+           onclick="return toggleText()"/>
+</p>
+<div id="MyDiv" class="divHidden">
+    <div class="">
+        <p></p>
+        <ul class="instructions">
+            <li>Enter key terms separated by the word OR (city OR town OR village)</li>
+            <li>Also, commas can be used to separate keywords (city, town, village)</li>
+            <li>Copy/paste document into search reporting box or upload a text (*.txt) file.</li>
+            <li>Choose MGRS grid precision (6, 8, 10, All Grids)</li>
+            <li>Click "Search" button to see results below</li>
+            <li>Click "Reset" button to start a new search</li>
+            <li>Use export button to save results as a comma separated values (CSV) file.</li>
+        </ul>
+    </div>
+</div>
+<hr>
+<p id="validateInput" class="errorMsg"></p>
+<!-- *******************  LEFT SIDEBAR --  ************************ -->
+<!-- *** Input for keywords, MGRS grid precision and Search/Reset buttons -->
+<!-- *** Search button runs main.js/mainSearch() -->
+
+<div class="container-fluid text-center">
+    <div class="row content">
+        <div class="col-sm-3 sidenav">
+
+            <!-- Keywords - Text Area Input - keywordsIn -->
+            <div class="">
+                <label for="keywordsIn" class="boldText">Search Terms</label>
+                <textarea class="form-control inputArea" rows="3" id="keywordsIn"
+                          placeholder="Enter search terms separated by 'OR'
+                 city OR town OR village"></textarea>
+            </div>
+
+            <hr class="">
+
+            <!-- MGRS Grid Digit Size Input-->
+            <!--TODO Replace with Slider to choose 10, 8, 6 grid -->
+
+            <div class="container">
+                <label class="boldText">MGRS Grid Precision</label>
+                <form>
+                    <div class="radioIn">
+                        <input type="radio" name="gridIn" id="radio_id1" value="1" checked> All &emsp;
+                        <label for="radio_id1">Grids</label>
+                    </div>
+                    <div class="radioIn">
+                        <input type="radio" name="gridIn" id="radio_id2" value="6"> 6 &emsp;
+                        <label for="radio_id2">100m</label>
+                    </div>
+                    <div class="radioIn">
+                        <input type="radio" name="gridIn" id="radio_id3" value="8"> 8 &emsp;
+                        <label for="radio_id3">10m</label>
+                    </div>
+                    <div class="radioIn">
+                        <input type="radio" name="gridIn" id="radio_id4" value="10"> 10 &emsp;
+                        <label for="radio_id4">1m</label>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Range Slider of Size of Gist Snippet-->
+            <div class="slidecontainer">
+                <!--<p>Gist Snippet Size</p>-->
+                <br>
+                <label for="gist-slider" class="boldText">Snippet Size: </label>
+                <input type="range" id="gist-slider" min="100" max="400" value="150" class="slider btn">
+                <span id="gist-size-out"></span>
+            </div>
+            <hr class="">
+
+            <!-- Search and Reset Buttons -->
+            <br>
+            <div>
+                <button id="searchBtn" onclick="mainSearch()" type="button" class="btn btn-success">SEARCH</button>
+                <button onclick="resetForm()" class="btn">RESET</button>
+                <!--<input type="button" value="Reset" class="btn" onClick="window.location.reload()">-->
+
+                <!--Add Sample Data -->
+                <input id="sampleData" class="btn btn-outline-secondary" type="button" value="Sample Data"
+                       onclick="return buttons()"/>
+            </div>
+
+        </div>
+
+        <!-- *******************  MIDDLE WINDOW  ************************ -->
+        <!-- *** Text Input to Search - reportingIn  ***** -->
+
+        <div class="col-sm-7 text-left">
+            <div>
+                <label class="boldText">Copy/Paste or Upload Text File &nbsp;&nbsp; &nbsp;&nbsp; </label>
+                <label for="fileInput" class="file-upload">
+                    <input type="file" id="fileInput">
+                </label>
+                <textarea class="form-control resetAll inputArea" rows="15" id="reportingIn"
+                          placeholder="Copy and Paste Text Here..."></textarea>
+            </div>
+        </div>
+
+        <!-- *******************  RIGHT SIDEBAR  ************************ -->
+        <!-- *** displays counts of keywords and grids found-->
+
+        <div class="col-sm-2 sidenav">
+            <div class="box">
+                <p>Total Keywords</p>
+                <p id="countKeywords"></p>
+            </div>
+            <div class="box">
+                <p>Total Grid Count</p>
+                <p id="totalLocCount"></p>
+            </div>
+            <div class="box">
+                <p>Total Grids + Keywords </p>
+                <p id="extractedLocations"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- *******************  OUTPUT  ************************ -->
+<!-- *** Table uses AG Grid library -->
+
+<div id="showExport" class="divHidden">
+    <div style="text-align:center;">
+        <span class="successText">Success!</span> &nbsp;&nbsp;
+        <img src="img/fist-pump-kid.jpg" width="75" height="75" alt="Fist-Pump">
+        &nbsp;&nbsp;
+        <button onclick="onBtnExport()" class="btn btn-sm" id="exportBtn">Export to CSV</button>
+    </div>
+</div>
+<br>
+<div class="tableFormat">
+    <div id="myGrid" style="word-wrap: break-word; height: 500px;
+        width: 1500px;" class="ag-theme-balham tableOut"></div>
+</div>
+
+<br><br><br>
+<!-- *******************  FOOTER  ************************ -->
+
+<div class=" footer container-fluid text-center">
+    <p></p>
+    <br>
+</div>
+
+<br><br>
+
+<!-- SCRIPTS -->
+
+<script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript" src="js/search.js"></script>
+<script type="text/javascript" src="js/countHits.js"></script>
+<script type="text/javascript" src="js/buttons.js"></script>
+<script type="text/javascript" src="js/upload.js"></script>
+<script type="text/javascript" src="js/sampleData.js"></script>
+
+</body>
